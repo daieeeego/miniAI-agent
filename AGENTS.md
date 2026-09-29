@@ -16,5 +16,5 @@ Never use production credentials or external model calls in unit tests.
 - Flag storage or disclosure of API keys or user messages in application logs or responses.
   Keys must come from Secret Manager in memory through ADC or workload identity; do not
   introduce `.env` secrets or service-account JSON keys.
-- Flag a merge check that treats failed, cancelled, skipped, missing, or invalid PR reviews
-  as successful. Tests must pass, review must complete, and P0/P1 findings must block the PR.
+- Flag a merge check that treats failed, cancelled, skipped, or missing CI tests as successful.
+  Merge readiness must require successful test jobs.

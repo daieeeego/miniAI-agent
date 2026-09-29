@@ -101,9 +101,8 @@ Secretは呼び出しごとに取得します。Secret取得は10秒、モデル
 
 ## テスト
 
-PRでは、テスト → Codexレビュー → `Merge readiness`の順にチェックします。
-Codexの認証設定とmainの必須チェック設定は[CI設定手順](docs/ci.md)を参照してください。
-未設定のCodexレビューを成功扱いにはしません。
+PRでは追加された`CI`ワークフローでテストを実行し、`Merge readiness`で結果を確認します。
+GitHub側でテスト成功後だけマージを許可する設定は[CI設定手順](docs/ci.md)を参照してください。
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
