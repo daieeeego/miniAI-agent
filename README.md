@@ -101,6 +101,10 @@ Secretは呼び出しごとに取得します。Secret取得は10秒、モデル
 
 ## テスト
 
+PRでは、テスト → Codexレビュー → `Merge readiness`の順にチェックします。
+Codexの認証設定とmainの必須チェック設定は[CI設定手順](docs/ci.md)を参照してください。
+未設定のCodexレビューを成功扱いにはしません。
+
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m ruff check .
