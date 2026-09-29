@@ -38,7 +38,9 @@ Codex Actionへ渡すため、取得したキーはマスクされた一時的�
 3. レビュー専用サービスアカウントを作り、上のリポジトリのprincipalSetに
    `roles/iam.workloadIdentityUser`を付与します。サービスアカウントには、レビュー用Secretだけの
    `roles/secretmanager.secretAccessor`を付与します。Secret Manager API・IAM Credentials APIも有効にします。
-4. GitHubの`Settings → Secrets and variables → Actions → Variables`に以下の非秘密値を登録。
+4. GitHubの`Settings → Secrets and variables → Actions → Variables`に以下を登録します。
+   ValuesとSecretsどちらに登録しても読み込めます。プロジェクト識別子やリソース名は通常Variablesに置けます。
+   必要ならSecretsに保存し、Variablesと同名の場合はVariablesを優先します。
 
 | Variable | 設定例 |
 | --- | --- |
