@@ -11,13 +11,12 @@ Python 3.11以上を用意してください。Windows PowerShell:
 ```powershell
 git clone https://github.com/daieeeego/miniAI-agent.git
 cd miniAI-agent
-git switch feature/v0.1-initial-agent
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1
 ```
 
-Activateは不要です。PRマージ後は`main`でも利用できます。
+Activateは不要です。
 
 macOS / Linuxは取得後、以下で起動できます:
 
@@ -101,7 +100,7 @@ Secretは呼び出しごとに取得します。Secret取得は10秒、モデル
 
 ## テスト
 
-PRでは追加された`CI`ワークフローでテストを実行し、`Merge readiness`で結果を確認します。
+PRでは`CI`ワークフローでテストを実行し、`Merge readiness`で結果を確認します。
 GitHub側でテスト成功後だけマージを許可する設定は[CI設定手順](docs/ci.md)を参照してください。
 
 ```powershell
