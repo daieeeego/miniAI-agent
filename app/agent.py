@@ -55,7 +55,7 @@ class Agent:
             decision=Decision(route=route, source=source, reason=reason),
             jev_mode=self.settings.jev_mode,
             jev=classification,
-            action=execute_tool(route),
+            action=execute_tool(route, message),
         )
 
 
