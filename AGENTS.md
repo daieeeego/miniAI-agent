@@ -1,8 +1,10 @@
 # Development guidance
 
-This repository is a teaching agent: Jev classifies, GPT handles ambiguous classifications,
-and Python chooses from a fixed set of dummy tools. Do not describe dummy dispatch as a real
-cloud operation or describe Mock scores as measured model confidence.
+This repository is a baseball rules agent for anyone involved in baseball: Jev classifies,
+GPT handles ambiguous classifications, and Python chooses from a fixed set of answer tools.
+The scope is the 全軟連 学童部 rules. Answers must cite a published source; rules each
+tournament decides must point to the tournament rules instead of being guessed. Do not
+describe Mock scores as measured model confidence.
 
 Run `python -m pytest -q`, `python -m ruff check .`, `python -m ruff format --check .`,
 and `node --test .github/scripts/merge-readiness.test.cjs` when changing relevant behavior.

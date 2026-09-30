@@ -5,9 +5,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 
 class Route(str, Enum):
-    AWS = "aws"
-    SNOWFLAKE = "snowflake"
-    DATADOG = "datadog"
+    PITCH_COUNT = "pitch_count"
+    GAME_RULES = "game_rules"
+    SUBSTITUTION = "substitution"
+    SCORING = "scoring"
+    PLAY_RULES = "play_rules"
     GENERAL = "general"
 
 
@@ -32,7 +34,7 @@ class Classification(BaseModel):
     def valid_distribution(self):
         values = list(self.probabilities.values())
         if set(self.probabilities) != set(Route):
-            raise ValueError("all four route probabilities are required")
+            raise ValueError("probabilities for every route are required")
         if any(not math.isfinite(p) or not 0 <= p <= 1 for p in values):
             raise ValueError("invalid probabilities")
         if not math.isclose(sum(values), 1, abs_tol=0.02):
@@ -54,7 +56,7 @@ class ActionResult(BaseModel):
     tool: str
     status: str
     message: str
-    simulated: bool = True
+    sources: list[str] = []
 
 
 class AgentResponse(BaseModel):

@@ -10,7 +10,7 @@ from app.models import AgentRequest, AgentResponse
 def create_app(settings: Settings | None = None, agent: Agent | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     runner = agent or build_agent(settings)
-    api = FastAPI(title="Jev Mini Agent", version="0.1.0")
+    api = FastAPI(title="野球ルール ミニAIエージェント", version="0.2.0")
 
     @api.exception_handler(RequestValidationError)
     async def invalid_request(request, exc):
@@ -31,7 +31,7 @@ def create_app(settings: Settings | None = None, agent: Agent | None = None) -> 
             "status": "ok",
             "jev_mode": settings.jev_mode,
             "gpt_fallback_enabled": runner.fallback is not None,
-            "tools_mode": "dummy",
+            "scope": "全軟連 学童部",
         }
 
     @api.post("/agent", response_model=AgentResponse)

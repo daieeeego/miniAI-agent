@@ -22,21 +22,6 @@ jobs:
         python-version: ['3.11', '3.12']
     steps:
       - uses: actions/checkout@v4
-      # Reuse the repository's Node CI when a package-lock is present.
-      - uses: actions/setup-node@v4
-        if: hashFiles('package-lock.json') != ''
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-        if: hashFiles('package-lock.json') != ''
-      - name: Unit tests
-        run: npm test
-        if: hashFiles('package-lock.json') != ''
-      - name: Build
-        run: npm run build
-        if: hashFiles('package-lock.json') != ''
-      # The current agent is Python; run its CI checks as well.
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}

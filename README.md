@@ -1,8 +1,9 @@
 # miniAI-agent
 
-Jevで一次分類 → confidenceによる分岐 → GPTで再分類 → Pythonでツールへ振り分ける、学習用ミニAIエージェントです。FastAPIでHTTP APIを提供します。
+野球に関わる人が誰でもルールを質問できる、野球ルールのミニAIエージェントです。
+Jevで一次分類 → confidenceによる分岐 → GPTで再分類 → Pythonで回答ツールへ振り分けます。FastAPIでHTTP APIを提供します。
 
-v0.1は **AWS / Snowflake / Datadog / general の分類とダミーツール実行**までです。クラウド操作、DB接続、有人レビューへの通知・保存は行いません。`human_review`は人間確認が必要というレスポンスです。
+v0.2の対象は **全日本軟式野球連盟（全軟連）学童部（小学生）の規定** だけです。回答は出典のある事実に限り、大会ごとに決まるルールは推測せず大会規定の確認を案内します。有人レビューへの通知・保存はまだ行いません。`human_review`は人間確認が必要というレスポンスです。
 
 ## まず動かす（アカウント・APIキー不要）
 
@@ -11,13 +12,12 @@ Python 3.11以上を用意してください。Windows PowerShell:
 ```powershell
 git clone https://github.com/daieeeego/miniAI-agent.git
 cd miniAI-agent
-git switch feature/v0.1-initial-agent
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1
 ```
 
-Activateは不要です。PRマージ後は`main`でも利用できます。
+Activateは不要です。
 
 macOS / Linuxは取得後、以下で起動できます:
 
@@ -30,16 +30,16 @@ python3 -m venv .venv
 [Swagger UI](http://127.0.0.1:8000/docs)を開き、`POST /agent` → Try it outで以下を送ります。
 
 ```json
-{"message": "AWS S3 RDS Athena IAMの相談"}
+{"message": "4年生のピッチャーが今日45球投げました。あと何球投げられる？"}
 ```
 
-`decision.route: aws`、`decision.source: mock_jev`、`action.tool: aws_tool`、`action.simulated: true`が返ります。`GET /health`は起動確認用で、外部APIの認証成功を確認するものではありません。
+`decision.route: pitch_count`、`decision.source: mock_jev`、`action.tool: pitch_count`が返り、`action.message`に「今日あと15球（45/60球）」と数え方、`action.sources`に出典が入ります。`GET /health`は起動確認用で、外部APIの認証成功を確認するものではありません。
 
 ## 分岐ルール
 
 | confidence | 動作 |
 | --- | --- |
-| 0.85以上 | 分類先のダミーツールへ |
+| 0.85以上 | 分類先の回答ツールへ |
 | 0.55以上、0.85未満 | GPTで再分類。GPT未設定・失敗時は人間確認へ |
 | 0.55未満 | 人間確認へ |
 | Jev呼び出し失敗・不正な応答 | 人間確認へ |
@@ -48,11 +48,25 @@ python3 -m venv .venv
 
 | APIキーなしで試す入力 | 結果 |
 | --- | --- |
-| AWS S3 RDS Athena IAMの相談 | awsのダミーツール |
-| Snowflake Warehouse Roleの相談 | snowflakeのダミーツール |
-| Datadog Monitor Metric Alertの相談 | datadogのダミーツール |
-| AthenaでS3のデータを検索したい | GPT未設定ならhuman_review |
-| AWSとSnowflakeとDatadogの相談 | confidence低のためhuman_review |
+| 4年生のピッチャーが今日45球投げました。あと何球投げられる？ | pitch_count：残り15球と数え方 |
+| タイブレークと延長のルールは？ | game_rules：大会規定の確認を案内 |
+| 一度交代した選手は再出場できる？ | substitution：大会規定の確認を案内 |
+| インフィールドフライの条件は？ | GPT未設定ならhuman_review |
+| ボークは球数に入る？ | confidence低のためhuman_review |
+
+## 分類と回答の範囲
+
+| route | 内容 | 回答 |
+| --- | --- | --- |
+| pitch_count | 投球数制限 | 学年・今日・今週の球数を文章から読み取り、残りの球数を計算（`answered`） |
+| game_rules | イニング数・コールド・タイブレーク・継続試合 | 大会規定で決まるため確認を案内（`check_tournament_rules`） |
+| substitution | 代打・代走・再出場・DH・登録人数 | 再出場は大会規定の確認を案内。DH未導入・登録25名は回答（`check_tournament_rules`） |
+| scoring | スコアブックの付け方 | 根拠資料がないため未対応（`not_covered`） |
+| play_rules | プレーの判定 | 公認野球規則は扱わないため未対応（`not_covered`） |
+| general | 上記以外 | 未対応（`not_covered`） |
+
+出典は全軟連の公開資料（学童部の投球数制限の特別規則・通知、令和4年度の規程変更通知、規程細則）です。
+競技者必携の本文は一般公開されていないため、イニング数・コールド・タイブレーク・再出場の条文は持っていません。
 
 ## 本物のJev・GPTを使う
 
@@ -101,7 +115,7 @@ Secretは呼び出しごとに取得します。Secret取得は10秒、モデル
 
 ## テスト
 
-PRでは追加された`CI`ワークフローでテストを実行し、`Merge readiness`で結果を確認します。
+PRでは`CI`ワークフローでテストを実行し、`Merge readiness`で結果を確認します。
 GitHub側でテスト成功後だけマージを許可する設定は[CI設定手順](docs/ci.md)を参照してください。
 
 ```powershell
@@ -110,17 +124,18 @@ GitHub側でテスト成功後だけマージを許可する設定は[CI設定�
 .\.venv\Scripts\python.exe -m ruff format --check .
 ```
 
-テストは外部APIを呼びません。Mock、閾値の境界、失敗時の人間確認、無効な入力、SDKアダプターを確認します。本物の分類精度と認証は、アカウント設定後の確認が必要です。
+テストは外部APIを呼びません。Mock、閾値の境界、失敗時の人間確認、無効な入力、SDKアダプター、投球数の計算を確認します。本物の分類精度と認証は、アカウント設定後の確認が必要です。
 
 ## 構成
 
 - `app/main.py`: `/health`・`/agent`・Swagger UI
 - `app/agent.py`: confidence判定と振り分け
+- `app/categories.py`: 分類先の定義（Mockのキーワード、Jevの基準、GPTのプロンプトで共通）
 - `app/clients/jev.py`: Mock / Live Jev
 - `app/clients/gpt.py`: GPT構造化出力による再分類
 - `app/clients/secrets.py`: Secret Manager / ADC
-- `app/tools.py`: ダミーツール
+- `app/tools.py`: 回答ツール（投球数の計算、出典付きの定型回答）
 - `app/models.py`・`app/config.py`: 入出力と設定の検証
 - `tests/test_agent.py`: 外部APIなしのテスト
 
-次の段階ではダミーツールを読み取り専用の実APIに置き換え、分類精度とフォールバック率を計測できます。
+次の段階では、出典資料からの回答生成、`human_review`の通知、分類精度と回答の正しさの計測を追加します。

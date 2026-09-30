@@ -1,8 +1,7 @@
 # CIとマージ判定
 
-追加されていた`CI` GitHub Actionsワークフローを使います。PR・main以外へのpush・Merge queueで動きます。
-`package-lock.json`があるNode.jsプロジェクトでは元の`npm ci`・`npm test`・`npm run build`を実行し、
-このPythonエージェントではPython 3.11 / 3.12、ruff、pytest、マージ判定テストを実行します。
+`CI` GitHub Actionsワークフローを使います。PR・main以外へのpush・Merge queueで動きます。
+Python 3.11 / 3.12で、ruff、pytest、マージ判定テストを実行します。
 
 `Merge readiness`ジョブは、必須のテストジョブがすべて成功した時だけ成功します。
 テストの失敗・キャンセル・スキップ時は失敗します。自動マージは行いません。
